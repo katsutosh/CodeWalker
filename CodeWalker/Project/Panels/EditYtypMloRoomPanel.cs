@@ -274,5 +274,11 @@ namespace CodeWalker.Project.Panels
             ProjectForm.SetProjectItem(CurrentRoom);
             ProjectForm.DeleteMloRoom();
         }
+        
+        private void PortalCountButton_Click(object sender, EventArgs e)
+        {
+            ProjectForm.SetProjectItem(CurrentRoom);
+            PortalCountTextBox.Text = ProjectForm.CountMloPortals().ToString();
+        }
     }
 }

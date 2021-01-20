@@ -3065,7 +3065,27 @@ namespace CodeWalker.Project
 
             return true;
         }
+        public uint CountMloPortals()
+        {
+            var mlo = CurrentMloRoom?.OwnerMlo;
 
+            var portals = mlo.portals;
+            uint portalCount = 0;
+            for (int i = 0; i < portals.Length; i++)
+            {
+                if (portals[i]._Data.roomFrom == CurrentMloRoom.Index || portals[i]._Data.roomTo == CurrentMloRoom.Index)
+                {
+                    portalCount++;
+                }
+            }
+            
+            if (WorldForm != null)
+            {
+                WorldForm.SelectItem(null);
+            }
+            
+            return portalCount;
+        }
         private void AddProjectArchetypes(YtypFile ytyp)
         {
             if (ytyp?.AllArchetypes == null) return;

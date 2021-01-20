@@ -51,6 +51,7 @@
             this.ExteriorVisDepthTextBox = new CodeWalker.WinForms.TextBoxFix();
             this.label9 = new System.Windows.Forms.Label();
             this.DeleteButton = new System.Windows.Forms.Button();
+            this.PortalCountButton = new System.Windows.Forms.Button();
             this.AddEntityButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
@@ -277,12 +278,22 @@
             this.DeleteButton.UseVisualStyleBackColor = true;
             this.DeleteButton.Click += new System.EventHandler(this.DeleteButton_Click);
             // 
+            // Portal Count Button
+            // 
+            this.PortalCountButton.Location = new System.Drawing.Point(225, 277);
+            this.PortalCountButton.Name = "PortalCountButton";
+            this.PortalCountButton.Size = new System.Drawing.Size(95, 23);
+            this.PortalCountButton.TabIndex = 22;
+            this.PortalCountButton.Text = "Count Portals";
+            this.PortalCountButton.UseVisualStyleBackColor = true;
+            this.PortalCountButton.Click += new System.EventHandler(this.PortalCountButton_Click);
+            // 
             // AddEntityButton
             // 
             this.AddEntityButton.Location = new System.Drawing.Point(110, 277);
             this.AddEntityButton.Name = "AddEntityButton";
             this.AddEntityButton.Size = new System.Drawing.Size(95, 23);
-            this.AddEntityButton.TabIndex = 22;
+            this.AddEntityButton.TabIndex = 21;
             this.AddEntityButton.Text = "Add Entity";
             this.AddEntityButton.UseVisualStyleBackColor = true;
             this.AddEntityButton.Click += new System.EventHandler(this.AddEntityButton_Click);
@@ -293,6 +304,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(565, 505);
             this.Controls.Add(this.AddEntityButton);
+            this.Controls.Add(this.PortalCountButton);
             this.Controls.Add(this.DeleteButton);
             this.Controls.Add(this.ExteriorVisDepthTextBox);
             this.Controls.Add(this.label9);
@@ -347,6 +359,7 @@
         private WinForms.TextBoxFix ExteriorVisDepthTextBox;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button DeleteButton;
+        private System.Windows.Forms.Button PortalCountButton;
         private System.Windows.Forms.Button AddEntityButton;
     }
 }
