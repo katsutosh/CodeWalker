@@ -274,7 +274,7 @@ namespace CodeWalker
             InitFileType(".pso", "Metadata (PSO)", 6, FileTypeAction.ViewJPso, true);
             InitFileType(".gfx", "Scaleform Flash", 7);
             InitFileType(".ynd", "Path Nodes", 8, FileTypeAction.ViewYnd, true);
-            InitFileType(".ynv", "Nav Mesh", 9, FileTypeAction.ViewModel);
+            InitFileType(".ynv", "Nav Mesh", 9, FileTypeAction.ViewModel, true);
             InitFileType(".yvr", "Vehicle Record", 9, FileTypeAction.ViewYvr);
             InitFileType(".ywr", "Waypoint Record", 9, FileTypeAction.ViewYwr);
             InitFileType(".fxc", "Compiled Shaders", 9, FileTypeAction.ViewFxc);
@@ -308,19 +308,21 @@ namespace CodeWalker
             InitFileType(".awc", "Audio Wave Container", 22, FileTypeAction.ViewAwc, true);
             InitFileType(".rel", "Audio Data (REL)", 23, FileTypeAction.ViewRel, true);
 
-            InitSubFileType(".dat", "cache_y.dat", "Cache File", 6, FileTypeAction.ViewCacheDat);
+            InitSubFileType(".dat", "cache_y.dat", "Cache File", 6, FileTypeAction.ViewCacheDat, true);
+            InitSubFileType(".dat", "heightmap.dat", "Heightmap", 6, FileTypeAction.ViewHeightmap, true);
+            InitSubFileType(".dat", "heightmapheistisland.dat", "Heightmap", 6, FileTypeAction.ViewHeightmap, true);
         }
         private void InitFileType(string ext, string name, int imgidx, FileTypeAction defaultAction = FileTypeAction.ViewHex, bool xmlConvertible = false)
         {
             var ft = new FileTypeInfo(ext, name, imgidx, defaultAction, xmlConvertible);
             FileTypes[ext] = ft;
         }
-        private void InitSubFileType(string ext, string subext, string name, int imgidx, FileTypeAction defaultAction = FileTypeAction.ViewHex)
+        private void InitSubFileType(string ext, string subext, string name, int imgidx, FileTypeAction defaultAction = FileTypeAction.ViewHex, bool xmlConvertible = false)
         {
             FileTypeInfo pti = null;
             if (FileTypes.TryGetValue(ext, out pti))
             {
-                var ft = new FileTypeInfo(subext, name, imgidx, defaultAction, pti.XmlConvertible);
+                var ft = new FileTypeInfo(subext, name, imgidx, defaultAction, xmlConvertible);
                 pti.AddSubType(ft);
             }
         }
@@ -686,10 +688,25 @@ namespace CodeWalker
             RefreshMainTreeViewRoot(root);
 
 
+            var remFolders = new List<MainTreeFolder>();
+
             foreach (var extraroot in ExtraRootFolders)
             {
                 extraroot.Clear();
-                RefreshMainTreeViewRoot(extraroot);
+
+                if (Directory.Exists(extraroot.FullPath))
+                {
+                    RefreshMainTreeViewRoot(extraroot);
+                }
+                else
+                {
+                    remFolders.Add(extraroot);
+                }
+            }
+
+            foreach (var remFolder in remFolders)
+            {
+                ExtraRootFolders.Remove(remFolder);
             }
 
 
@@ -1383,6 +1400,7 @@ namespace CodeWalker
                 case FileTypeAction.ViewYed:
                 case FileTypeAction.ViewYld:
                 case FileTypeAction.ViewYfd:
+                case FileTypeAction.ViewHeightmap:
                     return true;
                 case FileTypeAction.ViewHex:
                 default:
@@ -1508,6 +1526,9 @@ namespace CodeWalker
                         break;
                     case FileTypeAction.ViewYfd:
                         ViewYfd(name, path, data, fe);
+                        break;
+                    case FileTypeAction.ViewHeightmap:
+                        ViewHeightmap(name, path, data, fe);
                         break;
                     case FileTypeAction.ViewHex:
                     default:
@@ -1742,6 +1763,13 @@ namespace CodeWalker
             MetaForm f = new MetaForm(this);
             f.Show();
             f.LoadMeta(cachedat);
+        }
+        private void ViewHeightmap(string name, string path, byte[] data, RpfFileEntry e)
+        {
+            var heightmap = RpfFile.GetFile<HeightmapFile>(e, data);
+            MetaForm f = new MetaForm(this);
+            f.Show();
+            f.LoadMeta(heightmap);
         }
 
         private RpfFileEntry CreateFileEntry(string name, string path, ref byte[] data)
@@ -2588,6 +2616,10 @@ namespace CodeWalker
                     {
                         mformat = MetaFormat.Ynd;
                     }
+                    if (fnamel.EndsWith(".ynv.xml"))
+                    {
+                        mformat = MetaFormat.Ynv;
+                    }
                     if (fnamel.EndsWith(".ycd.xml"))
                     {
                         mformat = MetaFormat.Ycd;
@@ -2623,6 +2655,14 @@ namespace CodeWalker
                     if (fnamel.EndsWith(".awc.xml"))
                     {
                         mformat = MetaFormat.Awc;
+                    }
+                    if (fnamel.EndsWith("cache_y.dat.xml"))
+                    {
+                        mformat = MetaFormat.CacheFile;
+                    }
+                    if (fnamel.EndsWith(".dat.xml") && fnamel.StartsWith("heightmap"))
+                    {
+                        mformat = MetaFormat.Heightmap;
                     }
 
                     fname = fname.Substring(0, fname.Length - trimlength);
@@ -2694,6 +2734,17 @@ namespace CodeWalker
                                     continue;
                                 }
                                 data = ynd.Save();
+                                break;
+                            }
+                        case MetaFormat.Ynv:
+                            {
+                                var ynv = XmlYnv.GetYnv(doc);
+                                if (ynv.Nav == null)
+                                {
+                                    MessageBox.Show(fname + ": Schema not supported.", "Cannot import YNV XML");
+                                    continue;
+                                }
+                                data = ynv.Save();
                                 break;
                             }
                         case MetaFormat.Ycd:
@@ -2793,6 +2844,24 @@ namespace CodeWalker
                                     continue;
                                 }
                                 data = awc.Save();
+                                break;
+                            }
+                        case MetaFormat.CacheFile:
+                            {
+                                var cdf = new CacheDatFile();
+                                //cdf.LoadXml() //TODO!!!
+                                MessageBox.Show(fname + ": CacheFile XML import still TODO!!!", "Cannot import CacheFile XML");
+                                break;
+                            }
+                        case MetaFormat.Heightmap:
+                            {
+                                var hmf = XmlHmap.GetHeightmap(doc);
+                                if (hmf.MaxHeights == null)
+                                {
+                                    MessageBox.Show(fname + ": Schema not supported.", "Cannot import Heightmap XML");
+                                    continue;
+                                }
+                                data = hmf.Save();
                                 break;
                             }
                     }
@@ -4623,6 +4692,7 @@ namespace CodeWalker
         ViewYed = 20,
         ViewYld = 21,
         ViewYfd = 22,
+        ViewHeightmap = 23,
     }
 
 
