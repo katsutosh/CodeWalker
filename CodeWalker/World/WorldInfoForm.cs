@@ -102,10 +102,10 @@ namespace CodeWalker.World
                 SelectionEntityTabPage.Text = "Car Generator";
                 SelEntityPropertyGrid.SelectedObject = item.CarGenerator;
             }
-            else if (item.DistantLodLights != null)
+            else if (item.LodLight!= null)
             {
-                SelectionEntityTabPage.Text = "Distant LOD Lights";
-                SelEntityPropertyGrid.SelectedObject = item.DistantLodLights;
+                SelectionEntityTabPage.Text = "LOD Light";
+                SelEntityPropertyGrid.SelectedObject = item.LodLight;
             }
             else if (item.GrassBatch != null)
             {
@@ -117,10 +117,10 @@ namespace CodeWalker.World
                 SelectionEntityTabPage.Text = "Box Occluder";
                 SelEntityPropertyGrid.SelectedObject = item.BoxOccluder;
             }
-            else if (item.OccludeModel != null)
+            else if (item.OccludeModelTri != null)
             {
-                SelectionEntityTabPage.Text = "Occlude Model";
-                SelEntityPropertyGrid.SelectedObject = item.OccludeModel;
+                SelectionEntityTabPage.Text = "Occlude Model Triangle";
+                SelEntityPropertyGrid.SelectedObject = item.OccludeModelTri;
             }
             else if (item.WaterQuad != null)
             {
